@@ -1,2 +1,2 @@
-humanizr
+digits.js
 ========
