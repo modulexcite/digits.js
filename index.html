@@ -2,194 +2,27 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
-	<title>Humanizr</title>	
+	<title>Digits</title>	
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link href="stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
-    <link href="stylesheets/print.css" media="print" rel="stylesheet" type="text/css" />
-    <!--[if IE]>
-    <link href="stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
-    <![endif]-->
 </head>
 <body>
 
 <div class="container">
-    <h1>Humanizr</h1>
+    <h1>Digits</h1>
+    <p>Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio. Proin quis tortor orci.</p>
+    <p>Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci. Quisque eget odio ac lectus vestibulum faucibus eget in metus. In pellentesque faucibus vestibulum. </p>
+    <p>Nulla at nulla justo, eget luctus tortor. Nulla facilisi. Duis aliquet egestas purus in blandit. Curabitur vulputate, ligula lacinia scelerisque tempor, lacus lacus ornare ante, ac egestas est urna sit amet arcu. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed molestie augue sit amet leo consequat posuere. Vestibulum ante.</p>
+    <p>Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci. Quisque eget odio ac lectus vestibulum faucibus eget in metus. In pellentesque faucibus vestibulum. </p>
+    <p>Nulla at nulla justo, eget luctus tortor. Nulla facilisi. Duis aliquet egestas purus in blandit. Curabitur vulputate, ligula lacinia scelerisque tempor, lacus lacus ornare ante, ac egestas est urna sit amet arcu. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed molestie augue sit amet leo consequat posuere. Vestibulum ante.</p>
 </div>
 
-<div class="humanizr-container" id="humanizr-container">
-    <div class="humanizr-content">
-        <div class="humanizr-status" id="humanizr-status">
-            <img src="img/pinch.svg" />
-        </div>
-    </div>
-    <div class="humanizr-finger"></div>
-    <div class="humanizr-finger"></div>
-</div>
-
-
-<script type="text/javascript">
-(function () {
-    Humanizr = {
-        supportsTouch: 'ontouchstart' in window || navigator.msMaxTouchPoints,
-        
-        // Tests
-        handedness: null,
-        pinchDistance: null,
-        touchSize: null,
-        
-        // Config
-        fingerSizes: [
-           {name: 'small', maxPinchSize: 10},
-           {name: 'medium', maxPinchSize: 17},
-           {name: 'large', maxPinchSize: 28}
-        ],
-        
-        // UI
-        container: document.querySelector('#humanizr-container'),
-        fingers: document.querySelectorAll('.humanizr-finger'),
-        status: document.querySelector('#humanizr-status'),
-                
-                
-        startTest: function () {
-            
-            this.container.style.display = 'table';
-            this.transform(this.container, 'scaleX(1)');
-            
-            window.addEventListener('touchstart', this);            
-            window.addEventListener('touchend', this);            
-            window.addEventListener('touchcancel', this);            
-            window.addEventListener('touchmove', this);            
-        },
-        
-        stopTest: function () {
-            var htmlTag = document.querySelector('html'),
-                classes = htmlTag.className.split(' ');
-        
-
-            classes.push(Humanizr.handedness);
-            classes.push('touch-' + Humanizr.touchSize);
-            classes.push('humanizr-done');
-            htmlTag.className = classes.join(' ');        
-             
-            window.removeEventListener('touchstart', this);            
-            window.removeEventListener('touchend', this);            
-            window.removeEventListener('touchcancel', this);            
-            window.removeEventListener('touchmove', this); 
-                     
-            console.log('Humanizr.handedness', Humanizr.handedness);                
-            console.log('Humanizr.pinchDistance', Humanizr.pinchDistance); 
-            console.log('Humanizr.touchSize', Humanizr.touchSize); 
-            
-            this.setStatus(
-                'Handedness: ' 
-                + Humanizr.handedness 
-                + '<br />Pinch distance: ' 
-                + Humanizr.pinchDistance.toFixed(1) + 'mm'
-                + '<br />Touch size: ' 
-                + Humanizr.touchSize
-            );
-        },
-        
-        setStatus: function (msg) {
-            this.status.innerHTML = msg;
-        },
-        
-        handleEvent: function (event) {
-            var self = this, i, ct, elem, fs;
-            switch(event.type) {
-                case 'touchstart':
-                    event.preventDefault();
-                    if (event.touches.length === 2) {
-                        Humanizr.handedness = this.getHandedness(event.touches);
-                    }
-                    this.updateFingerPositions(event);
-                    break;
-                case 'touchcancel':
-                case 'touchend':
-                    event.preventDefault();
-                    for (i = 0; i < 2; i++) {
-                        this.fingers[i].style.opacity = 0;
-                    }
-                    fs = this.getQualifiedFingerSize();
-                    if (Humanizr.pinchDistance && fs) {
-                        Humanizr.touchSize = fs;
-                        this.stopTest();
-                    }
-                    break;
-                case 'touchmove':
-                    event.preventDefault();
-                    this.updateFingerPositions(event);
-                    Humanizr.pinchDistance = this.getPinchDistance(event.touches);
-                    break;
-            }
-        },
-
-        getHandedness: function (touches) {
-            var top, bottom;
-            if (touches.length < 2) {
-                // Need 2 touches
-                return null;
-            }
-            if (touches[0].pageY < touches[1].pageY) {
-                top = touches[0];
-                bottom = touches[1];
-            } else {
-                top = touches[1];
-                bottom = touches[0];
-            }
-            if (top.pageX > bottom.pageX) {
-                return 'right-handed';   
-            } else {
-                return 'left-handed';   
-            }
-        },
-        
-        getPinchDistance: function (touches) {
-            if (touches.length < 2) {
-                return null;
-            }  
-            a = touches[0].pageX - touches[1].pageX;
-            b = touches[0].pageY - touches[1].pageY;
-            return Math.sqrt(a * a + b * b) / Humanizr.ppmm;
-        },
-        
-        updateFingerPositions: function (event) {
-            var i, ct, l = Math.min(2, event.touches.length);
-            for (i = 0; i < l; i++) {
-                ct = event.touches[i];
-                this.fingers[i].style.opacity = 1;
-                this.transform(this.fingers[i], 'translate3d(' + ct.pageX + 'px, ' + ct.pageY + 'px, 0)');
-            }
-        },
-        
-        getQualifiedFingerSize: function () {
-            for (i = 0; i < Humanizr.fingerSizes.length; i++) {
-                if (Humanizr.pinchDistance <= Humanizr.fingerSizes[i].maxPinchSize) {
-                    return Humanizr.fingerSizes[i].name;
-                }
-            }
-            return null;
-        },
-        
-        transform: function (elem, trans) {
-            var style = elem.style;
-            style.webkitTransform = trans;
-            style.MozTransform = trans;
-            style.OTransform = trans;
-            style.msTransform = trans;
-            style.transform = trans;
-            return elem;
-        },
-    };
-    if (Humanizr.supportsTouch) {
-        setTimeout(function (){
-            Humanizr.startTest()
-        }, 200);
-    }
-}());
+<script type="text/javascript" src="js/digits.js"></script>
+<script>
+Digits.callback = function (hand) {
+    console.log(hand);
+};
 </script>
-
-
 
 </body>
 </html>
